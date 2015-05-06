@@ -2,7 +2,7 @@
 import Tkinter as tk
 import tkFileDialog
 import ImageTk
-import Image, ImageDraw, ImageChops
+import Image, ImageDraw, ImageChops, ImageFilter
 from tkMessageBox import showinfo
 from math import log
 
@@ -96,6 +96,17 @@ class dip(object):
             target = (i, 255 - zhiFang[i])
             draw.line([source, target], (50, 50, 50))
         self.showImage('直方图')
+    def junzhi(self):
+        self.propic = self.im.filter(ImageFilter.SMOOTH)
+        self.showImage('均值滤波')
+
+
+    def zhongzhi(self):
+        self.propic = self.im.filter(ImageFilter.MedianFilter(3))
+        self.showImage('中值滤波')
+    def ruihua(self):
+        self.propic = self.im.filter(ImageFilter.SHARPEN)
+        self.showImage('锐化')
 
 #--------------------------------------------------------------
 
@@ -183,6 +194,12 @@ tk.Button(framRight, text = '平移', command = dip.offset,\
 tk.Button(framRight, text = '旋转', command = dip.rotate,\
           bg='red', fg='white', height = 3, width = 10).pack()
 tk.Button(framRight, text = '直方图', command = dip.zhifang,\
+          bg='red', fg='white', height = 3, width = 10).pack()
+tk.Button(framRight, text = '均值滤波', command = dip.junzhi,\
+          bg='red', fg='white', height = 3, width = 10).pack()
+tk.Button(framRight, text = '中值滤波', command = dip.zhongzhi,\
+          bg='red', fg='white', height = 3, width = 10).pack()
+tk.Button(framRight, text = '锐化', command = dip.ruihua,\
           bg='red', fg='white', height = 3, width = 10).pack()
 
 
