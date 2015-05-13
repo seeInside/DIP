@@ -105,7 +105,7 @@ class dip(object):
         self.propic = self.im.filter(ImageFilter.MedianFilter(3))
         self.showImage('中值滤波')
     def ruihua(self):
-        self.propic = self.im.filter(ImageFilter.SHARPEN)
+        self.propic = self.im.filter(ImageFilter.SHARPEN_LPLS)
         self.showImage('锐化')
 
 #--------------------------------------------------------------
