@@ -19,14 +19,24 @@ class dip(object):
         
 
     def myopen(self):
-        try:
-            self.filename = tkFileDialog.askopenfilename(initialdir =\
-                                          'C:\Users\Administrator\Desktop\pywin\DIP by python')
-            self.im = Image.open(self.filename)
+        def show():
             tkImage = ImageTk.PhotoImage(self.im)
             label = tk.Label(framLeft, image = tkImage)
             label.image = tkImage
-            label.pack()
+            label.grid(row = 0, column = 0)
+        try:
+            try:
+                w, h = self.im.size
+                self.im = Image.new('RGB', (w, h), \
+                        (255, 255,255))
+                show()
+            except (AttributeError):
+                pass
+            self.filename = tkFileDialog.askopenfilename(initialdir =\
+                                          'C:\Users\Administrator\Desktop\pywin\DIP by python')
+            self.im = Image.open(self.filename)
+            show()
+            
         except (IOError,KeyboardInterrupt):
             print '打开失败！请重新检查文件的格式及路径。'
 
@@ -88,13 +98,15 @@ class dip(object):
         
 
     def rotate(self):
-        self.propic = self.im.rotate(45)
+        r = float(getRotate.get())
+        self.propic = self.im.rotate(r)
         self.showImage('旋转')
 
     def reSize(self):
         w, h = self.im.size
-        
-        self.propic = self.im.resize((w/2, h/2))
+        size = float(getSize.get())
+        self.propic = self.im.resize((int(w*size), int(h*size)))
+
         self.showImage('缩放')
 
 
@@ -197,7 +209,7 @@ dip = dip(root)
 
 #布局
 framLeft = tk.Frame(width = 500,height = 580, bg ='white')
-framRight = tk.Frame(width = 490, height = 580, bg = 'white')
+framRight = tk.Frame(width = 490, height = 580, bg = 'gray')
 framLeft.grid(row = 0, column =0)
 framRight.grid(row=0, column = 1)
 framLeft.grid_propagate(1)
@@ -236,19 +248,31 @@ tk.Button(framRight, text = '点运算-对数', command = dip.logp,\
 tk.Button(framRight, text = '平移', command = dip.offset,\
           bg='blue', fg='white', height = 3, width = 10).grid(row = 1,column = 0)
 tk.Button(framRight, text = '旋转', command = dip.rotate,\
-          bg='blue', fg='white', height = 3, width = 10).grid(row = 1,column = 1)
+          bg='blue', fg='white', height = 3, width = 10).grid(row = 2,column = 0)
+
+label = tk.Label(framRight, text='请输入旋转角度(逆时针):').grid(row = 2, column = 1, sticky = tk.W)
+
+getRotate = tk.Entry(framRight)
+getRotate.grid(row = 2, column = 2, sticky = tk.E)
+
 tk.Button(framRight, text = '缩放', command = dip.reSize,\
-          bg='black', fg='white', height = 3, width = 10).grid(row = 1,column = 2)
-tk.Button(framRight, text = '直方图', command = dip.reSize,\
-          bg='black', fg='white', height = 3, width = 10).grid(row = 2,column = 0)
+          bg='black', fg='white', height = 3, width = 10).grid(row = 4,column = 0)
+
+label = tk.Label(framRight, text='请输入缩放倍数:').grid(row = 4, column = 1, sticky = tk.W)
+getSize = tk.Entry(framRight)
+getSize.grid(row = 4, column = 2, sticky = tk.E)
+
+
+tk.Button(framRight, text = '直方图', command = dip.zhiFang,\
+          bg='black', fg='white', height = 3, width = 10).grid(row = 5,column = 0)
 tk.Button(framRight, text = '均值滤波', command = dip.junZhi,\
-          bg='yellow', fg='black', height = 3, width = 10).grid(row = 3,column = 0)
+          bg='yellow', fg='black', height = 3, width = 10).grid(row = 6,column = 0)
 tk.Button(framRight, text = '中值滤波', command = dip.zhongZhi,\
-          bg='yellow', fg='black', height = 3, width = 10).grid(row = 3,column = 1)
+          bg='yellow', fg='black', height = 3, width = 10).grid(row = 6,column = 1)
 tk.Button(framRight, text = '锐化', command = dip.ruiHua,\
-          bg='yellow', fg='black', height = 3, width = 10).grid(row = 3,column = 2)
+          bg='yellow', fg='black', height = 3, width = 10).grid(row = 6,column = 2)
 tk.Button(framRight, text = '伪彩色', command = dip.weiCaiSe,\
-          bg='green', fg='black', height = 3, width = 10).grid(row = 4,column = 0)
+          bg='green', fg='black', height = 3, width = 10).grid(row = 7,column = 0)
 
 
 root.mainloop()
