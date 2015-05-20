@@ -83,13 +83,19 @@ class dip(object):
     
 
     def offset(self):
-        self.propic = ImageChops.offset(self.im, 100, 100)
+        self.propic = self.im.offset(100, 100)
         self.showImage('平移')
         
 
     def rotate(self):
         self.propic = self.im.rotate(45)
         self.showImage('旋转')
+
+    def reSize(self):
+        w, h = self.im.size
+        
+        self.propic = self.im.resize((w/2, h/2))
+        self.showImage('缩放')
 
 
     def zhiFang(self):
@@ -194,7 +200,7 @@ framLeft = tk.Frame(width = 500,height = 580, bg ='white')
 framRight = tk.Frame(width = 490, height = 580, bg = 'white')
 framLeft.grid(row = 0, column =0)
 framRight.grid(row=0, column = 1)
-framLeft.grid_propagate(0)
+framLeft.grid_propagate(1)
 framRight.grid_propagate(0)
     
 
@@ -224,25 +230,25 @@ root['menu'] = m
 
 #按钮功能
 tk.Button(framRight, text = '点运算-线性', command = dip.point,\
-          bg='black', fg='white', height = 3, width = 10).pack(fill = \
-                                                                tk.Y)
+          bg='black', fg='white', height = 3, width = 10).grid(row = 0,column = 0)
 tk.Button(framRight, text = '点运算-对数', command = dip.logp,\
-          bg='black', fg='white', height = 3, width = 10).pack(fill = \
-                                                                tk.Y)
+          bg='black', fg='white', height = 3, width = 10).grid(row = 0,column = 1)
 tk.Button(framRight, text = '平移', command = dip.offset,\
-          bg='red', fg='white', height = 3, width = 10).pack()
+          bg='blue', fg='white', height = 3, width = 10).grid(row = 1,column = 0)
 tk.Button(framRight, text = '旋转', command = dip.rotate,\
-          bg='red', fg='white', height = 3, width = 10).pack()
-tk.Button(framRight, text = '直方图', command = dip.zhiFang,\
-          bg='red', fg='white', height = 3, width = 10).pack()
+          bg='blue', fg='white', height = 3, width = 10).grid(row = 1,column = 1)
+tk.Button(framRight, text = '缩放', command = dip.reSize,\
+          bg='black', fg='white', height = 3, width = 10).grid(row = 1,column = 2)
+tk.Button(framRight, text = '直方图', command = dip.reSize,\
+          bg='black', fg='white', height = 3, width = 10).grid(row = 2,column = 0)
 tk.Button(framRight, text = '均值滤波', command = dip.junZhi,\
-          bg='red', fg='white', height = 3, width = 10).pack()
+          bg='yellow', fg='black', height = 3, width = 10).grid(row = 3,column = 0)
 tk.Button(framRight, text = '中值滤波', command = dip.zhongZhi,\
-          bg='red', fg='white', height = 3, width = 10).pack()
+          bg='yellow', fg='black', height = 3, width = 10).grid(row = 3,column = 1)
 tk.Button(framRight, text = '锐化', command = dip.ruiHua,\
-          bg='red', fg='white', height = 3, width = 10).pack()
+          bg='yellow', fg='black', height = 3, width = 10).grid(row = 3,column = 2)
 tk.Button(framRight, text = '伪彩色', command = dip.weiCaiSe,\
-          bg='red', fg='white', height = 3, width = 10).pack()
+          bg='green', fg='black', height = 3, width = 10).grid(row = 4,column = 0)
 
 
 root.mainloop()
