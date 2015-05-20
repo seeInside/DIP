@@ -74,7 +74,8 @@ class dip(object):
         self.showImage('旋转')
 
 
-    def zhifang(self):
+    def zhiFang(self):
+        
         pixs = self.im.load()
         w, h = self.im.size
         zhiFang = [0] * 256
@@ -82,6 +83,7 @@ class dip(object):
         for i in range(w):
             for j in range(h):
                 p = pixs[i, j]
+                print type(p)
                 zhiFang[p] += 1
                 #print zhiFang
 
@@ -96,18 +98,36 @@ class dip(object):
             target = (i, 255 - zhiFang[i])
             draw.line([source, target], (50, 50, 50))
         self.showImage('直方图')
-    def junzhi(self):
+    def junZhi(self):
         self.propic = self.im.filter(ImageFilter.SMOOTH)
         self.showImage('均值滤波')
 
 
-    def zhongzhi(self):
+    def zhongZhi(self):
         self.propic = self.im.filter(ImageFilter.MedianFilter(3))
         self.showImage('中值滤波')
-    def ruihua(self):
+        
+    def ruiHua(self):
         self.propic = self.im.filter(ImageFilter.SHARPEN_LPLS)
         self.showImage('锐化')
 
+    def weiCaiSe(self):
+        from random import randint
+        
+        pixs = self.im.load()
+        w, h = self.im.size
+        layer = [0] * 256
+        for i in range(256):
+            layer[i] = (randint(0,255), randint(0,255), randint(0,255))
+        
+        for i in range(w):
+            for j in range(h):
+                t = pixs[i,j]
+                t = t[0]
+                #print t, type(t)
+                pixs[i, j] = layer[t]
+        self.propic = self.im
+        self.showImage('伪彩色')
 #--------------------------------------------------------------
 
     def cut(self):
@@ -193,13 +213,15 @@ tk.Button(framRight, text = '平移', command = dip.offset,\
           bg='red', fg='white', height = 3, width = 10).pack()
 tk.Button(framRight, text = '旋转', command = dip.rotate,\
           bg='red', fg='white', height = 3, width = 10).pack()
-tk.Button(framRight, text = '直方图', command = dip.zhifang,\
+tk.Button(framRight, text = '直方图', command = dip.zhiFang,\
           bg='red', fg='white', height = 3, width = 10).pack()
-tk.Button(framRight, text = '均值滤波', command = dip.junzhi,\
+tk.Button(framRight, text = '均值滤波', command = dip.junZhi,\
           bg='red', fg='white', height = 3, width = 10).pack()
-tk.Button(framRight, text = '中值滤波', command = dip.zhongzhi,\
+tk.Button(framRight, text = '中值滤波', command = dip.zhongZhi,\
           bg='red', fg='white', height = 3, width = 10).pack()
-tk.Button(framRight, text = '锐化', command = dip.ruihua,\
+tk.Button(framRight, text = '锐化', command = dip.ruiHua,\
+          bg='red', fg='white', height = 3, width = 10).pack()
+tk.Button(framRight, text = '伪彩色', command = dip.weiCaiSe,\
           bg='red', fg='white', height = 3, width = 10).pack()
 
 
