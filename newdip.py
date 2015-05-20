@@ -60,12 +60,30 @@ class dip(object):
 
 
     def logp(self):
+        
+        pixs = self.im.load()
+        w, h = self.im.size
+        self.propic = Image.new('RGB', (w, h), \
+                        (255, 255,255))
+        draw = ImageDraw.Draw(self.propic)
+        for i in range(w):
+            for j in range(h):
+                t = pixs[i,j]
+                t = tuple(map(lambda i :int(35*log(i + 1)), t))
+                #print type(t)
+                draw.point([i, j], t)
+        
+        #new.show()
+        
+        
+        self.showImage('对数运算')
+        
     
-        self.propic = Image.eval(lambda i:log(i), self.im)
+        #self.propic = Image.eval(lambda i:log(i), self.im)
     
 
     def offset(self):
-        self.propic = ImageChops.offset(self.im, 0, 100)
+        self.propic = ImageChops.offset(self.im, 100, 100)
         self.showImage('平移')
         
 
@@ -83,7 +101,8 @@ class dip(object):
         for i in range(w):
             for j in range(h):
                 p = pixs[i, j]
-                print type(p)
+                p = p[0]
+                #print type(p)
                 zhiFang[p] += 1
                 #print zhiFang
 
@@ -98,6 +117,7 @@ class dip(object):
             target = (i, 255 - zhiFang[i])
             draw.line([source, target], (50, 50, 50))
         self.showImage('直方图')
+
     def junZhi(self):
         self.propic = self.im.filter(ImageFilter.SMOOTH)
         self.showImage('均值滤波')
