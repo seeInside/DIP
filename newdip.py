@@ -163,6 +163,42 @@ class dip(object):
             draw.line([source, target], (50, 50, 50))
         self.showImage('直方图')
 
+    def zftjh(self):                #直方图均衡化
+        w, h = self.im.size
+        pixs = self.im.load()
+        
+        a = [0] * 256
+
+        self.propic = Image.new('RGB', (w, h), \
+                        (255, 255,255))
+        #new.show()
+        draw = ImageDraw.Draw(self.propic)
+
+        for i in range(h):
+            for j in range(w):
+                p = pixs[i, j]
+                p = p[0]
+                igray = p
+                a[igray] +=  1          #累计灰度级像素总数
+        for i in range(1, 256):
+            a[i] = a[i] + a[i - 1]      
+            #print a[i]
+        m = max(a)
+        for k in range(256):
+            a[k] = a[k]* 200/m
+            #print a[k]                 #直方图均衡
+        for i in range(h):
+            for j in range(w):
+                p = pixs[i,j]
+                p = p[0]
+                pix = a[p]              
+                p = (pix, pix, pix)
+                #print pix
+                draw.point([i,j], p)
+        self.showImage('直方图均值化')
+
+        
+
     def junZhi(self):
         self.propic = self.im.filter(ImageFilter.SMOOTH)
         self.showImage('均值滤波')
@@ -309,6 +345,8 @@ getSize.grid(row = 4, column = 2, sticky = tk.E)
 
 tk.Button(framRight, text = '直方图', command = dip.zhiFang,\
           bg='black', fg='white', height = 3, width = 10).grid(row = 5,column = 0)
+tk.Button(framRight, text = '直方图均衡化', command = dip.zftjh,\
+          bg='black', fg='white', height = 3, width = 10).grid(row = 5,column = 1)
 tk.Button(framRight, text = '均值滤波', command = dip.junZhi,\
           bg='yellow', fg='black', height = 3, width = 10).grid(row = 6,column = 0)
 tk.Button(framRight, text = '中值滤波', command = dip.zhongZhi,\
