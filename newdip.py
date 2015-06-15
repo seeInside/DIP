@@ -16,6 +16,7 @@ class dip(object):
          #                                 'C:\Users\Administrator\Desktop\pywin\DIP by python')
         #self.im = Image.open(self.filename)
         self.root = root
+    
         
 
     def myopen(self):
@@ -68,6 +69,7 @@ class dip(object):
         self.propic = self.im.point(lambda i: 1.2 * i + 10)
         self.showImage('点运算-线性')
 
+    
 
     def logp(self):
         
@@ -76,12 +78,13 @@ class dip(object):
         self.propic = Image.new('RGB', (w, h), \
                         (255, 255,255))
         draw = ImageDraw.Draw(self.propic)
+        
         for i in range(w):
             for j in range(h):
                 t = pixs[i,j]
-                t = tuple(map(lambda i :int(35*log(i + 1)), t))
+                s = tuple(map(lambda i :int(35*(log(i + 1))), t))
                 #print type(t)
-                draw.point([i, j], t)
+                draw.point([i, j], s)
         
         #new.show()
         
@@ -90,10 +93,34 @@ class dip(object):
         
     
         #self.propic = Image.eval(lambda i:log(i), self.im)
+
+    def twoTrans(self):
+        
+        pixs = self.im.load()
+        w, h = self.im.size
+        self.propic = Image.new('RGB', (w, h), \
+                        (255, 255,255))
+        draw = ImageDraw.Draw(self.propic)
+        
+        for i in range(w):
+            for j in range(h):
+                t = pixs[i,j]
+                if t[0] <= 127:
+                    s = (0,0,0)
+                else:
+                    s = (255, 255, 255)
+                #print type(t)
+                draw.point([i, j], s)
+        self.showImage('二值化')
+                
+        
     
 
     def offset(self):
-        self.propic = self.im.offset(100, 100)
+
+        x = int(getOffsetx.get())
+        y = int(getOffsety.get())
+        self.propic = self.im.offset(x, y)
         self.showImage('平移')
         
 
@@ -149,11 +176,17 @@ class dip(object):
         self.propic = self.im.filter(ImageFilter.SHARPEN_LPLS)
         self.showImage('锐化')
 
+
     def weiCaiSe(self):
-        from random import randint
         
+        from random import randint
+
         pixs = self.im.load()
         w, h = self.im.size
+        self.propic = Image.new('RGB', (w, h), \
+                        (255, 255,255))
+        #new.show()
+        draw = ImageDraw.Draw(self.propic)
         layer = [0] * 256
         for i in range(256):
             layer[i] = (randint(0,255), randint(0,255), randint(0,255))
@@ -162,9 +195,10 @@ class dip(object):
             for j in range(h):
                 t = pixs[i,j]
                 t = t[0]
-                #print t, type(t)
-                pixs[i, j] = layer[t]
-        self.propic = self.im
+                
+                draw.point([i, j], layer[t])
+                #pixs[i, j] = layer[t]
+        
         self.showImage('伪彩色')
 #--------------------------------------------------------------
 
@@ -245,8 +279,18 @@ tk.Button(framRight, text = '点运算-线性', command = dip.point,\
           bg='black', fg='white', height = 3, width = 10).grid(row = 0,column = 0)
 tk.Button(framRight, text = '点运算-对数', command = dip.logp,\
           bg='black', fg='white', height = 3, width = 10).grid(row = 0,column = 1)
+tk.Button(framRight, text = '二值化', command = dip.twoTrans,\
+          bg='black', fg='white', height = 3, width = 10).grid(row = 0,column = 2)
+
 tk.Button(framRight, text = '平移', command = dip.offset,\
           bg='blue', fg='white', height = 3, width = 10).grid(row = 1,column = 0)
+label = tk.Label(framRight, text='请输入平移坐标(x, y):').grid(row = 1, column = 1, sticky = tk.W)
+getOffsetx = tk.Entry(framRight)
+getOffsetx.grid(row = 1, column = 2, sticky = tk.E)
+getOffsety = tk.Entry(framRight)
+getOffsety.grid(row = 1, column = 3, sticky = tk.E)
+
+
 tk.Button(framRight, text = '旋转', command = dip.rotate,\
           bg='blue', fg='white', height = 3, width = 10).grid(row = 2,column = 0)
 
