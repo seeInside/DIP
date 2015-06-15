@@ -208,10 +208,44 @@ class dip(object):
         self.propic = self.im.filter(ImageFilter.MedianFilter(3))
         self.showImage('中值滤波')
         
-    def ruiHua(self):
+    def ruihua_lpls(self):
         self.propic = self.im.filter(ImageFilter.SHARPEN_LPLS)
-        self.showImage('锐化')
+        self.showImage('锐化_拉普拉斯')
+    def ruihua_sobel(self):
+        self.propic = self.im.filter(ImageFilter.SHARPEN_SOBEL)
+        self.showImage('锐化_Sobel')
+    def ruihua_prewitt(self):
 
+        w, h = self.im.size
+        pixs = self.im.load()
+        self.propic = Image.new('RGB', (w, h), \
+                        (255, 255,255))
+        #new.show()
+        draw = ImageDraw.Draw(self.propic)
+        for i in range(w-1):
+            for j in range(h-1):
+                pix1 = pixs[i,j]
+                pix1 = pix1[0]
+                
+                pix2 = pixs[i,j+1]
+                pix2 = pix2[0]
+                
+                pix3 = pixs[i+1,j]
+                pix3 = pix3[0]
+                
+                pix4 = pixs[i+1,j+1]
+                pix4 = pix4[0]
+
+                pix = abs(pix4 - pix1) + abs(pix3 - pix2)
+                p = (pix, pix, pix)
+
+                draw.point([i, j], p)
+        self.showImage('锐化_梯度')
+    def ruihua_zonghe(self):
+        self.propic = self.im.filter(ImageFilter.SHARPEN_ZONGHE)
+        self.showImage('锐化_综合')
+        
+                
 
     def weiCaiSe(self):
         
@@ -260,7 +294,7 @@ class dip(object):
         showinfo('作者', '''秦绍阳
 （昆明理工大学 理学院 电子信息科学与技术121班）
 （学号：201211106102）
-                            日期：2015/4/29--''')
+                            日期：2015/4/29--2015/6/15''')
 
 
 #---------------------------------------------------
@@ -336,7 +370,7 @@ getRotate = tk.Entry(framRight)
 getRotate.grid(row = 2, column = 2, sticky = tk.E)
 
 tk.Button(framRight, text = '缩放', command = dip.reSize,\
-          bg='black', fg='white', height = 3, width = 10).grid(row = 4,column = 0)
+          bg='blue', fg='white', height = 3, width = 10).grid(row = 4,column = 0)
 
 label = tk.Label(framRight, text='请输入缩放倍数:').grid(row = 4, column = 1, sticky = tk.W)
 getSize = tk.Entry(framRight)
@@ -351,10 +385,19 @@ tk.Button(framRight, text = '均值滤波', command = dip.junZhi,\
           bg='yellow', fg='black', height = 3, width = 10).grid(row = 6,column = 0)
 tk.Button(framRight, text = '中值滤波', command = dip.zhongZhi,\
           bg='yellow', fg='black', height = 3, width = 10).grid(row = 6,column = 1)
-tk.Button(framRight, text = '锐化', command = dip.ruiHua,\
-          bg='yellow', fg='black', height = 3, width = 10).grid(row = 6,column = 2)
+
+
+tk.Button(framRight, text = '锐化_梯度', command = dip.ruihua_prewitt,\
+          bg='red', fg='black', height = 3, width = 10).grid(row = 7,column = 0)
+tk.Button(framRight, text = '锐化_sobel', command = dip.ruihua_sobel,\
+          bg='red', fg='black', height = 3, width = 10).grid(row = 7,column = 1)
+tk.Button(framRight, text = '锐化_拉普拉斯', command = dip.ruihua_lpls,\
+          bg='red', fg='black', height = 3, width = 10).grid(row = 7,column = 2)
+tk.Button(framRight, text = '锐化_综合', command = dip.ruihua_zonghe,\
+          bg='red', fg='black', height = 3, width = 10).grid(row = 7,column = 3)
+
 tk.Button(framRight, text = '伪彩色', command = dip.weiCaiSe,\
-          bg='green', fg='black', height = 3, width = 10).grid(row = 7,column = 0)
+          bg='green', fg='black', height = 3, width = 10).grid(row = 8,column = 0)
 
 
 root.mainloop()
