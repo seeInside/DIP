@@ -1,10 +1,12 @@
 ﻿#导入模块
+
 import Tkinter as tk
 import tkFileDialog
 import ImageTk
 import Image, ImageDraw, ImageChops, ImageFilter
 from tkMessageBox import showinfo
 from math import log
+import cv
 
 
 #------------------dip类-------------------------
@@ -39,28 +41,11 @@ class dip(object):
             self.im = Image.open(self.filename)
             show()
             
+            
         except (IOError,KeyboardInterrupt):
             print '打开失败！请重新检查文件的格式及路径。'
-
-    def new(self, im):
-        new = Image()
-        new.im = im
-        new.mode = im.mode
-        new.size = im.size
-        new.palette = self.palette
-        if im.mode == "P":
-            new.palette = ImagePalette.ImagePalette()
-        try:
-            new.info = self.info.copy()
-        except AttributeError:
-            # fallback (pre-1.5.2)
-            new.info = {}
-            for k, v in self.info:
-                new.info[k] = v
-        return new
-
         
-
+        self.fourier()
 
     def saveas(self):
         self.savename = tkFileDialog.asksaveasfilename(initialdir = 'C:\Users\Administrator\Desktop\pywin\DIP by python')
@@ -289,35 +274,8 @@ class dip(object):
         
         self.showImage('伪彩色')
         
-    def test(self):
-        
-        #self.propic = new.im
-        from random import randint
-        new = self.im.copy()
-        print 'new', new
-        print 'new.im', new.im
-        print 'self.im', self.im
-
-        pixs = new.im.load()
-        w, h = new.im.size
-        self.propic = new.im
-        
-        layer = [0] * 256
-        for i in range(256):
-            layer[i] = (randint(0,255), randint(0,255), randint(0,255))
-        
-        for i in range(w):
-            for j in range(h):
-                t = pixs[i,j]
-                t = t[0]
-                
-                pixs[i, j] = layer[t]
-        
-        
-        self.showImage('TEST')
-
     def fourier(self):
-        import cv
+        
         def FFT(image,flag = 0):
             w = image.width
             h = image.height
@@ -355,8 +313,8 @@ class dip(object):
             w = mat.cols
             h = mat.rows
             size = (w,h)
-    # iReal = cv.CreateImage(size,cv.IPL_DEPTH_8U,1)
-    # iIma = cv.CreateImage(size,cv.IPL_DEPTH_8U,1)
+            # iReal = cv.CreateImage(size,cv.IPL_DEPTH_8U,1)
+            # iIma = cv.CreateImage(size,cv.IPL_DEPTH_8U,1)
             iAdd = cv.CreateImage(size,cv.IPL_DEPTH_8U,1)
             for i in range(h):
                 for j in range(w):
@@ -383,26 +341,35 @@ class dip(object):
             return mFilter
 
         image = cv.LoadImage(self.filename,0)    
+
         mFFT = FFT(image)
         mIFFt = IFFT(mFFT)
-        iAfter = FImage(mFFT)
+        
+        
+        self.iAfter = FImage(mFFT)
         mLP = Filter(mFFT)
         mIFFt1=IFFT(mLP)
-        iLP = FImage(mLP)
-        iRestore = Restore(mIFFt1)
+        self.iLP = FImage(mLP)
+        self.iRestore = Restore(mIFFt1)
+        
+        
         
         mHP = Filter(mFFT,1)
         mIFFt2 = IFFT(mHP)
-        iHP = FImage(mHP)
-        iRestore2 = Restore(mIFFt2)
+        self.iHP = FImage(mHP)
+        self.iRestore2 = Restore(mIFFt2)
+    def iAfter(self):
+        cv.ShowImage('IN_FFT',self.iAfter)
+        #cv.WaitKey(0)
         
-        cv.ShowImage('iAfter',iAfter)
-        cv.ShowImage('iLP',iLP)
-        cv.ShowImage('iHP',iHP)
-        cv.ShowImage('iRestore',iRestore)
-        cv.ShowImage('iRestore2',iRestore2)
-        
-        cv.WaitKey(0)
+    def iLP(self):
+        cv.ShowImage('iLP',self.iLP)
+        cv.ShowImage('LP_Picture',self.iRestore)
+        #cv.WaitKey(0)
+    def iHP(self):
+        cv.ShowImage('iHP',self.iHP)
+        cv.ShowImage('HP_Picture',self.iRestore2)
+        #cv.WaitKey(0)
         
         
             
@@ -538,8 +505,15 @@ tk.Button(framRight, text = '锐化_综合', command = dip.ruihua_zonghe,\
 
 tk.Button(framRight, text = '伪彩色', command = dip.weiCaiSe,\
           bg='green', fg='black', height = 3, width = 10).grid(row = 8,column = 0)
-tk.Button(framRight, text = 'TEST', command = dip.fourier,\
-          bg='green', fg='black', height = 3, width = 10).grid(row = 8,column = 1)
+
+tk.Button(framRight, text = '频谱', command = dip.iAfter,\
+          bg='brown', fg='black', height = 3, width = 10).grid(row = 9,column = 0)
+tk.Button(framRight, text = '低通滤波', command = dip.iLP,\
+          bg='brown', fg='black', height = 3, width = 10).grid(row = 9,column = 1)
+tk.Button(framRight, text = '高通滤波', command = dip.iHP,\
+          bg='brown', fg='black', height = 3, width = 10).grid(row = 9,column = 2)
+
+
 
 
 root.mainloop()
