@@ -6,6 +6,7 @@ import Image, ImageDraw, ImageChops, ImageFilter
 from tkMessageBox import showinfo
 from math import log
 
+
 #------------------dip类-------------------------
 class dip(object):
 
@@ -40,6 +41,23 @@ class dip(object):
             
         except (IOError,KeyboardInterrupt):
             print '打开失败！请重新检查文件的格式及路径。'
+
+    def new(self, im):
+        new = Image()
+        new.im = im
+        new.mode = im.mode
+        new.size = im.size
+        new.palette = self.palette
+        if im.mode == "P":
+            new.palette = ImagePalette.ImagePalette()
+        try:
+            new.info = self.info.copy()
+        except AttributeError:
+            # fallback (pre-1.5.2)
+            new.info = {}
+            for k, v in self.info:
+                new.info[k] = v
+        return new
 
         
 
@@ -270,6 +288,126 @@ class dip(object):
                 #pixs[i, j] = layer[t]
         
         self.showImage('伪彩色')
+        
+    def test(self):
+        
+        #self.propic = new.im
+        from random import randint
+        new = self.im.copy()
+        print 'new', new
+        print 'new.im', new.im
+        print 'self.im', self.im
+
+        pixs = new.im.load()
+        w, h = new.im.size
+        self.propic = new.im
+        
+        layer = [0] * 256
+        for i in range(256):
+            layer[i] = (randint(0,255), randint(0,255), randint(0,255))
+        
+        for i in range(w):
+            for j in range(h):
+                t = pixs[i,j]
+                t = t[0]
+                
+                pixs[i, j] = layer[t]
+        
+        
+        self.showImage('TEST')
+
+    def fourier(self):
+        import cv
+        def FFT(image,flag = 0):
+            w = image.width
+            h = image.height
+            iTmp = cv.CreateImage((w,h),cv.IPL_DEPTH_32F,1)
+            cv.Convert(image,iTmp)
+            iMat = cv.CreateMat(h,w,cv.CV_32FC2)
+            mFFT = cv.CreateMat(h,w,cv.CV_32FC2)
+            for i in range(h):
+                for j in range(w):
+                    if flag == 0:
+                        num = -1 if (i+j)%2 == 1 else 1
+                    else:
+                        num = 1
+                    iMat[i,j] = (iTmp[i,j]*num,0)
+            cv.DFT(iMat,mFFT,cv.CV_DXT_FORWARD)
+            return mFFT
+        
+        def IFFT(mat):
+            mIFFt = cv.CreateMat(mat.rows,mat.cols,cv.CV_32FC2)
+            cv.DFT(mat,mIFFt,cv.CV_DXT_INVERSE)
+            return mIFFt
+
+        def Restore(mat):
+            w = mat.cols
+            h = mat.rows
+            size = (w,h)
+            iRestore = cv.CreateImage(size,cv.IPL_DEPTH_8U,1)
+            for i in range(h):
+                for j in range(w):
+                    num = -1 if (i+j)%2 == 1 else 1
+                    iRestore[i,j] = mat[i,j][0]*num/(w*h)
+            return iRestore
+
+        def FImage(mat):
+            w = mat.cols
+            h = mat.rows
+            size = (w,h)
+    # iReal = cv.CreateImage(size,cv.IPL_DEPTH_8U,1)
+    # iIma = cv.CreateImage(size,cv.IPL_DEPTH_8U,1)
+            iAdd = cv.CreateImage(size,cv.IPL_DEPTH_8U,1)
+            for i in range(h):
+                for j in range(w):
+                    # iReal[i,j] = mat[i,j][0]/h
+                    # iIma[i,j] = mat[i,j][1]/h
+                    iAdd[i,j] = mat[i,j][1]/h + mat[i,j][0]/h
+            return iAdd
+
+    
+        def Filter(mat,flag = 0,num = 10):
+            mFilter = cv.CreateMat(mat.rows,mat.cols,cv.CV_32FC2)
+            for i in range(mat.rows):
+                for j in range(mat.cols):
+                    if flag == 0:
+                        mFilter[i,j] = (0,0)
+                    else:
+                        mFilter[i,j] = mat[i,j]
+            for i in range(mat.rows/2-num,mat.rows/2+num):
+                for j in range(mat.cols/2-num,mat.cols/2+num):
+                    if flag == 0:
+                        mFilter[i,j] = mat[i,j]
+                    else:
+                        mFilter[i,j] = (0,0)
+            return mFilter
+
+        image = cv.LoadImage(self.filename,0)    
+        mFFT = FFT(image)
+        mIFFt = IFFT(mFFT)
+        iAfter = FImage(mFFT)
+        mLP = Filter(mFFT)
+        mIFFt1=IFFT(mLP)
+        iLP = FImage(mLP)
+        iRestore = Restore(mIFFt1)
+        
+        mHP = Filter(mFFT,1)
+        mIFFt2 = IFFT(mHP)
+        iHP = FImage(mHP)
+        iRestore2 = Restore(mIFFt2)
+        
+        cv.ShowImage('iAfter',iAfter)
+        cv.ShowImage('iLP',iLP)
+        cv.ShowImage('iHP',iHP)
+        cv.ShowImage('iRestore',iRestore)
+        cv.ShowImage('iRestore2',iRestore2)
+        
+        cv.WaitKey(0)
+        
+        
+            
+        
+        
 #--------------------------------------------------------------
 
     def cut(self):
@@ -295,6 +433,8 @@ class dip(object):
 （昆明理工大学 理学院 电子信息科学与技术121班）
 （学号：201211106102）
                             日期：2015/4/29--2015/6/15''')
+
+#--------------------------------------------------------------
 
 
 #---------------------------------------------------
@@ -398,6 +538,8 @@ tk.Button(framRight, text = '锐化_综合', command = dip.ruihua_zonghe,\
 
 tk.Button(framRight, text = '伪彩色', command = dip.weiCaiSe,\
           bg='green', fg='black', height = 3, width = 10).grid(row = 8,column = 0)
+tk.Button(framRight, text = 'TEST', command = dip.fourier,\
+          bg='green', fg='black', height = 3, width = 10).grid(row = 8,column = 1)
 
 
 root.mainloop()
