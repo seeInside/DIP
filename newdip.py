@@ -274,9 +274,11 @@ class dip(object):
         
         self.showImage('伪彩色')
         
-    def fourier(self):
+    def fourier(self):              #傅里叶变换（低通、高通）
         
         def FFT(image,flag = 0):
+
+            '''将输入的图像进行中心变换 ，然后进行DFT'''
             w = image.width
             h = image.height
             iTmp = cv.CreateImage((w,h),cv.IPL_DEPTH_32F,1)
@@ -294,11 +296,13 @@ class dip(object):
             return mFFT
         
         def IFFT(mat):
+            '''进行IFFT'''
             mIFFt = cv.CreateMat(mat.rows,mat.cols,cv.CV_32FC2)
             cv.DFT(mat,mIFFt,cv.CV_DXT_INVERSE)
             return mIFFt
 
         def Restore(mat):
+            '''将IFFT的实部乘以(-1)^(x+y)'''
             w = mat.cols
             h = mat.rows
             size = (w,h)
@@ -310,6 +314,7 @@ class dip(object):
             return iRestore
 
         def FImage(mat):
+            '''将DFT后的实部虚部相加 得到频谱图'''
             w = mat.cols
             h = mat.rows
             size = (w,h)
@@ -359,7 +364,7 @@ class dip(object):
         self.iHP = FImage(mHP)
         self.iRestore2 = Restore(mIFFt2)
     def iAfter(self):
-        cv.ShowImage('IN_FFT',self.iAfter)
+        cv.ShowImage('Origin',self.iAfter)
         #cv.WaitKey(0)
         
     def iLP(self):
